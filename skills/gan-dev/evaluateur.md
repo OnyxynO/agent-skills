@@ -93,6 +93,35 @@ Les erreurs sont visibles et gérées, pas silencieuses.
 
 ---
 
+---
+
+### C7 — Comportement fonctionnel (poids : bloquant)
+
+Le code fait ce qui est demandé. Un build qui passe ne garantit pas que la feature fonctionne.
+
+**Principe :** l'évaluateur doit raisonner sur le comportement réel, pas seulement sur la syntaxe. Si le mécanisme choisi ne peut pas produire l'effet attendu (ex : `.onSubmit` pour intercepter Tab, cache sans invalidation, event handler qui ne se déclenche pas dans le contexte ciblé), le score est 0 quelle que soit la propreté du code.
+
+**Comment évaluer sans exécuter :**
+- Tracer mentalement le chemin d'exécution pour le cas nominal
+- Identifier les hypothèses implicites (API se déclenche-t-elle dans ce contexte ? sur ce système ?)
+- Si une hypothèse est douteuse → la marquer comme risque et baisser le score
+- Si le mécanisme est structurellement inadapté → score = 0
+
+**Exemples de faux positifs à détecter :**
+- `.onSubmit` utilisé pour intercepter Tab (ne se déclenche que sur Return)
+- `.onKeyPress(.tab)` sur un TextField macOS (Tab intercepté par AppKit avant SwiftUI)
+- `NSNotificationCenter` sans observer ajouté
+- Cache sans `revalidate` ou sans appel à `revalidateTag()`
+- Validation de formulaire déclenchée sur `onChange` mais le champ n'émet pas `onChange` dans ce contexte
+
+**Scoring :**
+- ✗ Mécanisme structurellement inadapté au comportement attendu → score = 0 (bloquant absolu)
+- ✗ Hypothèse douteuse non documentée, risque élevé de non-fonctionnement → -3
+- ✗ Comportement partiel (cas nominal OK, cas edge non couverts sans justification) → -1
+- ✓ Chemin d'exécution nominal tracé et cohérent → critère satisfait
+
+---
+
 ## PONDÉRATION
 
 | Critère | Points max | Bloquant |
@@ -103,9 +132,11 @@ Les erreurs sont visibles et gérées, pas silencieuses.
 | C4 — Conventions | 2 | Non |
 | C5 — Sécurité | 2 | Secret en dur = 0 |
 | C6 — Erreurs | 2 | Non |
+| C7 — Comportement fonctionnel | — | Oui (score = 0 si mécanisme inadapté) |
 | **Total** | **10** | |
 
-Score de base = somme des points obtenus.
+Score de base = somme des points obtenus (C2 à C6).
+C1 et C7 sont bloquants : si l'un échoue, le score final est 0 indépendamment des autres critères.
 
 Les critères spécifiques au projet (extraits de CLAUDE.md) peuvent modifier le score par bonus/malus selon leur criticité.
 

@@ -106,7 +106,7 @@ STACK : [STACK]
 RÉSULTAT BUILD : [succès / erreur + log]
 
 CRITÈRES D'ÉVALUATION (voir evaluateur.md pour le détail) :
-[Coller le contenu de evaluateur.md ici, section CRITÈRES GÉNÉRIQUES]
+[Coller le contenu de evaluateur.md ici, sections CRITÈRES GÉNÉRIQUES + C7 COMPORTEMENT FONCTIONNEL]
 
 CRITÈRES SPÉCIFIQUES AU PROJET (extraits de CLAUDE.md) :
 [pièges connus, règles spécifiques, conventions]
